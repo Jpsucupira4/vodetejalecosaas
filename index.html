@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vodete Jalecos — Sistema de Gestão</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ══════════════════ TELA DE LOGIN ══════════════════ -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-decoration"></div>
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="logo-icon">✦</span>
+        <h1>Vodete <em>Jalecos</em></h1>
+        <p>Sistema de Gestão</p>
+      </div>
+      <form id="login-form" class="login-form" onsubmit="return false;">
+        <div class="input-group">
+          <label>E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email" />
+        </div>
+        <div class="input-group">
+          <label>Senha</label>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <div id="login-error" class="alert alert-error" style="display:none;"></div>
+        <button type="button" id="btn-login" class="btn btn-primary btn-full">
+          <span class="btn-text">Entrar</span>
+          <span class="btn-loader" style="display:none;">...</span>
+        </button>
+      </form>
+      <p class="login-hint">Vodete Jalecos © 2025</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════ APP PRINCIPAL ══════════════════ -->
+  <div id="app" style="display:none;">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-icon">✦</span>
+        <div>
+          <h2>Vodete</h2>
+          <small>Jalecos</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">◈</span> Dashboard
+        </a>
+        <a href="#" class="nav-item" data-page="estoque">
+          <span class="nav-icon">◈</span> Estoque
+        </a>
+        <a href="#" class="nav-item" data-page="vendas">
+          <span class="nav-icon">◈</span> Registrar Venda
+        </a>
+        <a href="#" class="nav-item" data-page="historico">
+          <span class="nav-icon">◈</span> Histórico de Vendas
+        </a>
+        <a href="#" class="nav-item admin-only" data-page="vendedoras">
+          <span class="nav-icon">◈</span> Vendedoras
+        </a>
+        <a href="#" class="nav-item admin-only" data-page="relatorios">
+          <span class="nav-icon">◈</span> Relatórios
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar">V</div>
+          <div>
+            <p id="user-name">Usuário</p>
+            <small id="user-role">—</small>
+          </div>
+        </div>
+        <button class="btn-logout" id="btn-logout" title="Sair">↩</button>
+      </div>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <header class="mobile-header">
+      <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+      <span class="mobile-logo">✦ Vodete Jalecos</span>
+      <button id="btn-logout-mobile" class="btn-logout-mobile" title="Sair">↩</button>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
+
+      <!-- ── DASHBOARD ── -->
+      <section id="page-dashboard" class="page active">
+        <div class="page-header">
+          <h2>Dashboard</h2>
+          <p>Visão geral do negócio</p>
+        </div>
+        <div class="stats-grid" id="stats-grid">
+          <!-- preenchido via JS -->
+        </div>
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3 class="card-title">Produtos Mais Vendidos</h3>
+            <div id="top-products-list"></div>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Vendas Recentes</h3>
+            <div id="recent-sales-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── ESTOQUE ── -->
+      <section id="page-estoque" class="page">
+        <div class="page-header">
+          <h2>Estoque</h2>
+          <p>Gestão de produtos</p>
+          <button class="btn btn-primary" id="btn-add-product">+ Novo Produto</button>
+        </div>
+
+        <div class="filters-bar">
+          <input type="text" id="search-products" placeholder="Buscar produto..." class="input-search" />
+          <select id="filter-category" class="input-select">
+            <option value="">Todas as categorias</option>
+          </select>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table" id="products-table">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Tamanho</th>
+                <th>Cor</th>
+                <th>Preço</th>
+                <th>Estoque</th>
+                <th class="admin-only">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="products-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── REGISTRAR VENDA ── -->
+      <section id="page-vendas" class="page">
+        <div class="page-header">
+          <h2>Registrar Venda</h2>
+          <p>Nova transação</p>
+        </div>
+        <div class="sale-layout">
+          <div class="card sale-form-card">
+            <h3 class="card-title">Dados da Venda</h3>
+            <div class="input-group">
+              <label>Produto</label>
+              <select id="sale-product" class="input-select"></select>
+            </div>
+            <div class="sale-product-info" id="sale-product-info" style="display:none;">
+              <span id="info-stock"></span>
+              <span id="info-price"></span>
+            </div>
+            <div class="input-group">
+              <label>Quantidade</label>
+              <input type="number" id="sale-qty" min="1" value="1" class="input-field" />
+            </div>
+            <div class="input-group">
+              <label>Forma de Pagamento</label>
+              <select id="sale-payment" class="input-select">
+                <option value="pix">PIX</option>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="cartao_credito">Cartão de Crédito</option>
+                <option value="cartao_debito">Cartão de Débito</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Observações</label>
+              <textarea id="sale-notes" class="input-field" rows="2" placeholder="Opcional..."></textarea>
+            </div>
+            <div class="sale-total-box">
+              <span>Total</span>
+              <strong id="sale-total">R$ 0,00</strong>
+            </div>
+            <button class="btn btn-primary btn-full" id="btn-confirm-sale">Confirmar Venda</button>
+          </div>
+          <div class="card sale-summary-card">
+            <h3 class="card-title">Últimas Vendas do Dia</h3>
+            <div id="today-sales-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── HISTÓRICO ── -->
+      <section id="page-historico" class="page">
+        <div class="page-header">
+          <h2>Histórico de Vendas</h2>
+          <p>Todas as transações</p>
+        </div>
+        <div class="filters-bar">
+          <input type="date" id="filter-date-from" class="input-field" />
+          <input type="date" id="filter-date-to" class="input-field" />
+          <select id="filter-seller" class="input-select admin-only">
+            <option value="">Todas as vendedoras</option>
+          </select>
+          <button class="btn btn-outline" id="btn-filter-sales">Filtrar</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="sales-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Produto</th>
+                <th>Qtd</th>
+                <th>Valor</th>
+                <th>Pagamento</th>
+                <th class="admin-only">Vendedora</th>
+              </tr>
+            </thead>
+            <tbody id="sales-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── VENDEDORAS ── -->
+      <section id="page-vendedoras" class="page admin-only">
+        <div class="page-header">
+          <h2>Vendedoras</h2>
+          <p>Gestão de usuários</p>
+          <button class="btn btn-primary" id="btn-add-seller">+ Nova Vendedora</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Total Vendas</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="sellers-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── RELATÓRIOS ── -->
+      <section id="page-relatorios" class="page admin-only">
+        <div class="page-header">
+          <h2>Relatórios</h2>
+          <p>Análise de desempenho</p>
+        </div>
+        <div class="filters-bar">
+          <input type="date" id="report-date-from" class="input-field" />
+          <input type="date" id="report-date-to" class="input-field" />
+          <button class="btn btn-primary" id="btn-generate-report">Gerar Relatório</button>
+        </div>
+        <div class="stats-grid" id="report-stats"></div>
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3 class="card-title">Faturamento por Vendedora</h3>
+            <div id="report-by-seller"></div>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Produtos Mais Vendidos</h3>
+            <div id="report-top-products"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════ MODAIS ══════════════════ -->
+
+  <!-- Modal Produto -->
+  <div id="modal-product" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-product-title">Novo Produto</h3>
+        <button class="modal-close" data-modal="modal-product">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="input-group">
+            <label>Nome do Produto *</label>
+            <input type="text" id="prod-name" class="input-field" placeholder="Ex: Scrub Premium Rosa" />
+          </div>
+          <div class="input-group">
+            <label>Categoria *</label>
+            <select id="prod-category" class="input-select">
+              <option value="scrub">Scrub Microfibra</option>
+              <option value="scrub_tech">Scrub Tecnológico</option>
+              <option value="macacao">Macacão</option>
+              <option value="jaleco_fem">Jaleco Feminino</option>
+              <option value="jaleco_masc">Jaleco Masculino</option>
+              <option value="jaleco_dentista_fem">Jaleco Dentista Feminino</option>
+              <option value="jaleco_dentista_masc">Jaleco Dentista Masculino</option>
+              <option value="blusa">Blusa Estampada</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Tamanho</label>
+            <select id="prod-size" class="input-select">
+              <option value="PP">PP</option>
+              <option value="P">P</option>
+              <option value="M" selected>M</option>
+              <option value="G">G</option>
+              <option value="GG">GG</option>
+              <option value="XGG">XGG</option>
+              <option value="Único">Único</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Cor</label>
+            <input type="text" id="prod-color" class="input-field" placeholder="Ex: Rosa Antigo" />
+          </div>
+          <div class="input-group">
+            <label>Preço (R$) *</label>
+            <input type="number" id="prod-price" class="input-field" placeholder="0.00" step="0.01" min="0" />
+          </div>
+          <div class="input-group">
+            <label>Quantidade em Estoque *</label>
+            <input type="number" id="prod-stock" class="input-field" placeholder="0" min="0" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" data-modal="modal-product">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-product">Salvar Produto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Vendedora -->
+  <div id="modal-seller" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-seller-title">Nova Vendedora</h3>
+        <button class="modal-close" data-modal="modal-seller">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="seller-name" class="input-field" placeholder="Nome da vendedora" />
+        </div>
+        <div class="input-group">
+          <label>E-mail *</label>
+          <input type="email" id="seller-email" class="input-field" placeholder="email@exemplo.com" />
+        </div>
+        <div class="input-group">
+          <label>Senha *</label>
+          <input type="password" id="seller-password" class="input-field" placeholder="Mínimo 6 caracteres" />
+        </div>
+        <div class="input-group">
+          <label>Perfil</label>
+          <select id="seller-role" class="input-select">
+            <option value="vendedora">Vendedora</option>
+            <option value="admin">Administradora</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" data-modal="modal-seller">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-seller">Salvar Vendedora</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
